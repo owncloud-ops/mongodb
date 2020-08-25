@@ -9,12 +9,10 @@ platform:
 steps:
 - name: dryrun
   image: plugins/docker
-  environment:
-    TEST: "testfile"
   settings:
     build_args:
     - BUILD_VERSION=${DRONE_TAG%-*}
-    dockerfile: ${TEST}/Dockerfile
+    dockerfile: Dockerfile
     dry_run: true
     password:
       from_secret: docker_password
@@ -42,7 +40,7 @@ steps:
   settings:
     build_args:
     - BUILD_VERSION=${DRONE_TAG%-*}
-    dockerfile: ${DRONE_TAG%.*}/Dockerfile
+    dockerfile: Dockerfile
     password:
       from_secret: docker_password
     repo: owncloudops/${DRONE_REPO_NAME}
