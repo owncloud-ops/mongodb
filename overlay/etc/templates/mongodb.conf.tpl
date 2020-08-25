@@ -22,7 +22,7 @@ net:
     pathPrefix: {{ getenv "MONGO_DATA_DIR" }}/tmp
   ipv6: false
   bindIpAll: false
-  bindIp: 127.0.0.1
+  bindIp: 0.0.0.0
 {{ if (getenv "MONGO_REPLICA_SET_NAME") }}
 
 replication:

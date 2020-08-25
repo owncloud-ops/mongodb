@@ -25,7 +25,7 @@ MONGO_SMALL_FILES=false
 You could use the `BUILD_VERSION` to specify the target version.
 
 ```Shell
-docker build --build-arg BUILD_VERSION=1.8 -f Dockerfile -t mongodb:latest .
+docker build --build-arg BUILD_VERSION=4.0.20 -f Dockerfile -t mongodb:latest .
 ```
 
 ## License
