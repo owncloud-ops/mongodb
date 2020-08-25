@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+STARTCMD="exec mongod"
+CONF_FILE="${MONGO_DATA_DIR}/conf/mongodb.conf"
+
+/usr/local/bin/gomplate -o "${CONF_FILE}" -f /etc/templates/mongodb.conf.tpl
+
+# start temp. background service
+mongod --fork --config="${CONF_FILE}"
+
+if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]
+then
+    STARTCMD="${STARTCMD} --auth"
+
+    if [[ "$(mongo --quiet --eval "print(db.system.users.find({user:'${MONGO_ROOT_USERNAME}'}).count())" admin)" == "0" ]]
+    then
+        printf "\nCreate initial root user ...\n"
+        mongo --quiet --eval "db.getSiblingDB('admin').createUser({ user: '${MONGO_ROOT_USERNAME}', pwd: '$MONGO_ROOT_PASSWORD', roles: [{role: 'root', db: 'admin'}] })" --host "127.0.0.1" >/dev/null
+    fi
+fi
+
+# stop temp. background service
+PID=$(cat "${MONGO_DATA_DIR}/tmp/mongodb.pid")
+kill "$PID"
+while kill -0 "$PID" 2>/dev/null; do
+    sleep 1
+done
+
+printf "\nStarting Mongodb ...\n"
+$STARTCMD --config="${CONF_FILE}"
