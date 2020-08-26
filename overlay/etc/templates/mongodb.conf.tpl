@@ -31,7 +31,7 @@ replication:
 {{ end }}
 
 setParameter:
-   enableLocalhostAuthBypass: true
+   enableLocalhostAuthBypass: false
 
 processManagement:
    fork: false
