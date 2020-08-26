@@ -30,8 +30,8 @@ replication:
   {{ if (getenv "MONGO_OPLOG_SIZE") }}oplogSizeMB: {{ getenv "MONGO_OPLOG_SIZE" }}{{ end }}
 {{ end }}
 
-#setParameter:
-#   enableLocalhostAuthBypass: true
+setParameter:
+   enableLocalhostAuthBypass: true
 
 processManagement:
    fork: false
