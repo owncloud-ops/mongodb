@@ -2,31 +2,96 @@
 
 set -eo pipefail
 
+# shellcheck disable=SC1091
+source /usr/local/lib/log.sh
+
 STARTCMD="exec mongod"
 CONF_FILE="${MONGO_DATA_DIR}/conf/mongodb.conf"
 
 /usr/local/bin/gomplate -o "${CONF_FILE}" -f /etc/templates/mongodb.conf.tpl
 
-# start temp. background service
-mongod --fork --config="${CONF_FILE}"
+mongodb_bg() {
+    # start temp. background service
+    mongod --fork --config="${CONF_FILE}" >/dev/null
+}
 
-if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]
-then
-    STARTCMD="${STARTCMD} --auth"
+mongodb_stop() {
+    # stop temp. background service
+    PID=$(cat "${MONGO_DATA_DIR}/tmp/mongodb.pid")
+    kill "$PID"
+    while kill -0 "$PID" 2>/dev/null; do
+        sleep 1
+    done
+}
 
-    if [[ "$(mongo --quiet --eval "print(db.system.users.find({user:'${MONGO_ROOT_USERNAME}'}).count())" admin)" == "0" ]]
-    then
-        printf "\nCreate initial root user ...\n"
-        mongo --quiet --eval "db.getSiblingDB('admin').createUser({ user: '${MONGO_ROOT_USERNAME}', pwd: '$MONGO_ROOT_PASSWORD', roles: [{role: 'root', db: 'admin'}] })" --host "127.0.0.1" >/dev/null
+get_machine_ip() {
+    local -a ip_addresses
+    local hostname
+
+    hostname="$(hostname)"
+    dns=$(getent ahosts "$hostname" | awk '/STREAM/ {print $1 }')
+    read -r -a ip_addresses <<< "$dns"
+
+    if [[ "${#ip_addresses[@]}" -gt 1 ]]; then
+        log_info "Found more than one IP address associated to hostname ${hostname}, will use ${ip_addresses[0]}"
+    elif [[ "${#ip_addresses[@]}" -lt 1 ]]; then
+        log_error "Could not find any IP address associated to hostname ${hostname}"
+        exit 1
     fi
-fi
 
-# stop temp. background service
-PID=$(cat "${MONGO_DATA_DIR}/tmp/mongodb.pid")
-kill "$PID"
-while kill -0 "$PID" 2>/dev/null; do
-    sleep 1
-done
+    echo "${ip_addresses[0]}"
+}
 
-printf "\nStarting Mongodb ...\n"
+mongodb_initiated() {
+
+    if [[ -n "$MONGO_REPLICA_SET_NAME" ]]; then
+        log_info "Initialize replica set $MONGO_REPLICA_SET_NAME"
+        node=$(get_machine_ip)
+        result=$(mongo --quiet --eval  "rs.initiate({'_id': '$MONGO_REPLICA_SET_NAME', 'members':[{'_id':0,'host':'$node:${MONGO_PORT_NUMBER:-27017}','priority':5}]})")
+
+        # Code 23 = node is already initialized
+        if grep -q "\"code\" : 23" <<< "$result"; then
+            log_info "Node already initialized"
+            return
+        fi
+
+        if ! grep -q "\"ok\" : 1" <<< "$result"; then
+            log_error "MongoDB replica set failed to get configured"
+            exit 1
+        fi
+    fi
+}
+
+mongodb_create_users(){
+    if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]; then
+        STARTCMD="${STARTCMD} --auth"
+
+        if [[ "$(mongo --quiet --eval "print(db.system.users.find({user:'${MONGO_ROOT_USERNAME}'}).count())" admin)" == "0" ]]; then
+            log_info "Create initial root user"
+            mongo --quiet --eval "db.getSiblingDB('admin').createUser({ user: '${MONGO_ROOT_USERNAME}', pwd: '$MONGO_ROOT_PASSWORD', roles: [{role: 'root', db: 'admin'}] })" --host "127.0.0.1" >/dev/null
+        else
+            log_info "Update root user"
+            mongo --quiet --eval "db.getSiblingDB('admin').changeUserPassword('${MONGO_ROOT_USERNAME}', '${MONGO_ROOT_PASSWORD}')" --host "127.0.0.1" >/dev/null
+        fi
+    fi
+
+    if [[ -n "${MONGO_USERNAME}" && -n "${MONGO_PASSWORD}"  ]]; then
+        MONGO_DATABASE=${MONGO_DATABASE:-$MONGO_USERNAME}
+
+        if [[ "$(mongo --quiet --eval "print(db.system.users.find({user:'${MONGO_USERNAME}'}).count())" admin)" == "0" ]]; then
+            log_info "Create additional user"
+            mongo --quiet --eval "db.getSiblingDB('admin').createUser({user: '${MONGO_USERNAME}', pwd: '${MONGO_PASSWORD}', roles: [{role: 'readWrite', db: '${MONGO_DATABASE}'}]})" --host "127.0.0.1" >/dev/null
+        else
+            log_info "Update additional user"
+            mongo --quiet --eval "db.getSiblingDB('admin').changeUserPassword('${MONGO_USERNAME}', '${MONGO_PASSWORD}')" >/dev/null
+        fi
+    fi
+}
+
+mongodb_bg
+mongodb_initiated
+mongodb_create_users
+mongodb_stop
+
+log_info "Start Mongodb\n\n"
 $STARTCMD --config="${CONF_FILE}"

@@ -24,12 +24,10 @@ net:
   bindIpAll: false
   bindIp: 0.0.0.0
 {{ if (getenv "MONGO_REPLICA_SET_NAME") }}
-
 replication:
-  replSetName: {{ getenv "MONGO_REPLICA_SET_NAME" }}
-  {{ if (getenv "MONGO_OPLOG_SIZE") }}oplogSizeMB: {{ getenv "MONGO_OPLOG_SIZE" }}{{ end }}
+  replSetName: {{ getenv "MONGO_REPLICA_SET_NAME" }}{{ if (getenv "MONGO_OPLOG_SIZE") }}
+  oplogSizeMB: {{ getenv "MONGO_OPLOG_SIZE" }}{{ end }}
 {{ end }}
-
 setParameter:
    enableLocalhostAuthBypass: false
 
