@@ -28,7 +28,7 @@ RUN addgroup --gid 101 --system mongodb && \
     echo "deb https://repo.mongodb.org/apt/debian stretch/${MONGO_PACKAGE}/$MONGO_MAJOR main" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE}.list" && \
     MONGO_VERSION="${MONGO_VERSION##v}" && \
     apt-get update && \
-    if [ "${MONGO_VERSION}" = "latest" ]; then \
+    if [ "${MONGO_VERSION}" = "latest" ] || [ "${MONGO_VERSION}" = "4.0" ]; then \
         echo "Installing latest MongoDB ..." && \
         apt-get install -y \
             ${MONGO_PACKAGE}; \
