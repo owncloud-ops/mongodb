@@ -8,12 +8,10 @@ LABEL maintainer="ownCloud GmbH" \
 
 ARG BUILD_VERSION=latest
 ARG MONGO_PACKAGE=mongodb-org
-ARG MONGO_REPO=repo.mongodb.org
 ARG MONGODB_DATA_DIR=/opt/mongo
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV MONGO_PACKAGE=${MONGO_PACKAGE} \
-    MONGO_REPO=${MONGO_REPO} \
     MONGO_MAJOR=4.0 \
     MONGO_VERSION=${BUILD_VERSION:-latest}\
     MONGO_DATA_DIR=${MONGO_DATA_DIR:-/opt/mongo}
@@ -27,7 +25,7 @@ RUN addgroup --gid 101 --system mongodb && \
     curl -SsL -o /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.7.0/gomplate_linux-amd64-slim && \
     chmod 755 /usr/local/bin/gomplate && \
     wget -qO - "https://www.mongodb.org/static/pgp/server-$MONGO_MAJOR.asc" | apt-key add - && \
-    echo "deb http://$MONGO_REPO/apt/debian stretch/${MONGO_PACKAGE}/$MONGO_MAJOR main" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE}.list" && \
+    echo "deb https://repo.mongodb.org/apt/debian stretch/${MONGO_PACKAGE}/$MONGO_MAJOR main" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE}.list" && \
     MONGO_VERSION="${MONGO_VERSION##v}" && \
     apt-get update && \
     if [ "${MONGO_VERSION}" = "latest" ]; then \
