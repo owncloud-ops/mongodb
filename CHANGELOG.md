@@ -1,1 +1,2 @@
-- initial release
+- ENHANCEMENT
+  - refactor logging
