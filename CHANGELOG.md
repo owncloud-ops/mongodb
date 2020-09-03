@@ -1,2 +1,0 @@
-- ENHANCEMENT
-  - refactors logging script cregarding posix compliance
