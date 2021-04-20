@@ -5,12 +5,13 @@
     {
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["mongo"],
-      "separateMajorMinor": true
+      "separateMajorMinor": true,
+      "separateMinorPatch": true
     },
     {
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["mongo"],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": ["major", "minor"],
       "enabled": false
     }
   ]
