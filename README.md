@@ -5,6 +5,10 @@
 
 Docker image for [Mongodb](https://www.mongodb.com/de).
 
+## Versioning
+
+The used version tags are representing the minor upstream versions. Patch releases are counted by us and dont refelct the full upstream release directly. Exmaple: `v4.0.20` means the image contains MongoDB `v4.0` but **not** necessarily MongoDB `v4.0.20`.
+
 ## Environment Variables
 
 ```Shell
