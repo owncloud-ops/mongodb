@@ -13,7 +13,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # renovate: datasource=github-releases depName=hairyhenderson/gomplate
 ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.9.0}"
 # renovate: datasource=docker depName=mongo
-ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.0.22}"
+ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.4.5}"
 ENV MONGO_DATA_DIR="${MONGO_DATA_DIR:-/opt/mongo}"
 
 ADD overlay/ /
