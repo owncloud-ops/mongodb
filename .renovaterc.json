@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>owncloud-ops/renovate-presets:docker"],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["mongo"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}

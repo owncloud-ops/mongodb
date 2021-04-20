@@ -7,22 +7,6 @@ platform:
   arch: amd64
 
 steps:
-- name: dryrun
-  image: plugins/docker
-  settings:
-    build_args:
-    - BUILD_VERSION=${DRONE_TAG%-*}
-    dockerfile: Dockerfile
-    dry_run: true
-    password:
-      from_secret: docker_password
-    repo: owncloudops/${DRONE_REPO_NAME}
-    username:
-      from_secret: docker_username
-  when:
-    ref:
-    - refs/pull/**
-
 - name: tags
   image: thegeeklab/docker-autotag
   environment:
@@ -30,16 +14,27 @@ steps:
     DOCKER_AUTOTAG_IGNORE_PRERELEASE: True
     DOCKER_AUTOTAG_OUTPUT_FILE: .tags
     DOCKER_AUTOTAG_VERSION: ${DRONE_TAG}
+
+- name: dryrun
+  image: plugins/docker
+  settings:
+    dockerfile: Dockerfile
+    dry_run: true
+    repo: owncloudops/${DRONE_REPO_NAME}
   when:
     ref:
-    - refs/heads/master
-    - refs/tags/**
+    - refs/pull/**
+
+- name: changelog
+  image: thegeeklab/git-chglog
+  commands:
+  - git fetch -tq
+  - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
+  - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
 
 - name: publish
   image: plugins/docker
   settings:
-    build_args:
-    - BUILD_VERSION=${DRONE_TAG%-*}
     dockerfile: Dockerfile
     password:
       from_secret: docker_password
@@ -78,16 +73,15 @@ platform:
   arch: amd64
 
 steps:
-- name: readme
-  image: sheogorath/readme-to-dockerhub
+- name: pushrm
+  image: chko/docker-pushrm:1
   environment:
-    DOCKERHUB_PASSWORD:
+    DOCKER_PASS:
       from_secret: docker_password
-    DOCKERHUB_REPO_NAME: ${DRONE_REPO_NAME}
-    DOCKERHUB_REPO_PREFIX: owncloudops
-    DOCKERHUB_USERNAME:
+    DOCKER_USER:
       from_secret: docker_username
-    README_PATH: README.md
+    PUSHRM_FILE: README.md
+    PUSHRM_TARGET: owncloudops/${DRONE_REPO_NAME}
 
 - name: notify
   image: plugins/slack
