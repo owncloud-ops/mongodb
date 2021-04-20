@@ -1,6 +1,6 @@
 ---
 repository:
-  name: "mongodb"
+  name: mongodb
   description: Docker image for Mongodb.
   homepage: https://hub.docker.com/r/owncloudops/mongodb
   topics: docker, mongodb
@@ -51,7 +51,7 @@ branches:
     protection:
       required_pull_request_reviews: null
       required_status_checks:
-        strict: true
+        strict: false
         contexts:
           - continuous-integration/drone/pr
       enforce_admins: null

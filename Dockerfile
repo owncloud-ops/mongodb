@@ -1,55 +1,41 @@
-FROM debian:stretch-slim
+FROM debian:9-slim
 
-LABEL maintainer="ownCloud GmbH" \
-    org.label-schema.name="MongoDB" \
-    org.label-schema.vendor="ownCloud GmbH" \
-    org.label-schema.schema-version="1.0"
+LABEL maintainer="ownCloud DevOps <devops@owncloud.com>"
+LABEL org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>"
+LABEL org.opencontainers.image.title="MongoDB"
+LABEL org.opencontainers.image.url="https://github.com/owncloud-ops/mongodb"
+LABEL org.opencontainers.image.source="https://github.com/owncloud-ops/mongodb"
+LABEL org.opencontainers.image.documentation="https://github.com/owncloud-ops/mongodb"
 
-
-ARG BUILD_VERSION=latest
-ARG MONGO_PACKAGE=mongodb-org
-ARG MONGODB_DATA_DIR=/opt/mongo
+ARG BUILD_VERSION
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV MONGO_PACKAGE=${MONGO_PACKAGE} \
-    MONGO_MAJOR=4.0 \
-    MONGO_VERSION=${BUILD_VERSION:-latest}\
-    MONGO_DATA_DIR=${MONGO_DATA_DIR:-/opt/mongo}
+# renovate: datasource=github-releases depName=hairyhenderson/gomplate
+ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.9.0}"
+# renovate: datasource=docker depName=mongo
+ENV MONGO_RAW_VERSION=${BUILD_VERSION:-4.0.22}\
+ENV MONGO_DATA_DIR=${MONGO_DATA_DIR:-/opt/mongo}
 
 ADD overlay/ /
 
 RUN addgroup --gid 101 --system mongodb && \
-    adduser --system --disabled-password --no-create-home --uid 101 --home "${MONGODB_DATA_DIR}" --shell /sbin/nologin --ingroup mongodb --gecos mongodb mongodb && \
-    apt-get update && \
-    apt-get install -y wget curl gnupg2 procps apt-transport-https ca-certificates && \
-    curl -SsL -o /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.7.0/gomplate_linux-amd64-slim && \
+    adduser --system --disabled-password --no-create-home --uid 101 --home "${MONGO_DATA_DIR}" --shell /sbin/nologin --ingroup mongodb --gecos mongodb mongodb && \
+    apt-get update && apt-get install -y wget curl gnupg2 procps apt-transport-https ca-certificates && \
+    curl -SsL -o /usr/local/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64-slim" && \
     chmod 755 /usr/local/bin/gomplate && \
-    wget -qO - "https://www.mongodb.org/static/pgp/server-$MONGO_MAJOR.asc" | apt-key add - && \
-    echo "deb https://repo.mongodb.org/apt/debian stretch/${MONGO_PACKAGE}/$MONGO_MAJOR main" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE}.list" && \
-    MONGO_VERSION="${MONGO_VERSION##v}" && \
-    apt-get update && \
-    if [ "${MONGO_VERSION}" = "latest" ] || [ "${MONGO_VERSION}" = "4.0" ]; then \
-        echo "Installing latest MongoDB ..." && \
-        apt-get install -y \
-            ${MONGO_PACKAGE}; \
-    else \
-        echo "Installing MongoDB version '${MONGO_VERSION}' ..." && \
-        apt-get install -y \
-            ${MONGO_PACKAGE}=$MONGO_VERSION \
-            ${MONGO_PACKAGE}-server=$MONGO_VERSION \
-            ${MONGO_PACKAGE}-shell=$MONGO_VERSION \
-            ${MONGO_PACKAGE}-mongos=$MONGO_VERSION \
-            ${MONGO_PACKAGE}-tools=$MONGO_VERSION; \
-    fi &&\
+    MONGO_VERSION=${MONGO_RAW_VERSION%.*} && \
+    echo "Setup MongoDB 'v$MONGO_VERSION'" && \
+    wget -qO - "https://www.mongodb.org/static/pgp/server-$MONGO_VERSION.asc" | apt-key add - && \
+    echo "deb https://repo.mongodb.org/apt/debian stretch/mongodb-org/$MONGO_VERSION main" | tee "/etc/apt/sources.list.d/mongodb-org.list" && \
+    apt-get update && apt-get install -y mongodb-org mongodb-org-server mongodb-org-shell mongodb-org-mongos mongodb-org-tools && \
+    mkdir -p "${MONGO_DATA_DIR}"/db && \
+    mkdir -p "${MONGO_DATA_DIR}"/conf && \
+    mkdir -p "${MONGO_DATA_DIR}"/tmp && \
+    chown -R mongodb:mongodb "${MONGO_DATA_DIR}" && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/*
 
-RUN mkdir -p "${MONGODB_DATA_DIR}"/db &&\
-    mkdir -p "${MONGODB_DATA_DIR}"/conf &&\
-    mkdir -p "${MONGODB_DATA_DIR}"/tmp &&\
-    chown -R mongodb:mongodb "${MONGODB_DATA_DIR}"
-
-VOLUME "${MONGODB_DATA_DIR}"/db
+VOLUME "${MONGO_DATA_DIR}"/db
 
 EXPOSE 27017
 
@@ -57,5 +43,5 @@ USER mongodb
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD /usr/bin/healthcheck
-WORKDIR "${MONGODB_DATA_DIR}"
+WORKDIR "${MONGO_DATA_DIR}"
 CMD []
