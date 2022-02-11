@@ -1,9 +1,9 @@
 ---
 repository:
   name: mongodb
-  description: Docker image for Mongodb.
+  description: Custom container image for MongoDB
   homepage: https://hub.docker.com/r/owncloudops/mongodb
-  topics: docker, mongodb
+  topics: oci, container, mongodb
 
   private: false
   has_issues: true

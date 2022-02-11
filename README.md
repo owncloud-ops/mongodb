@@ -3,7 +3,7 @@
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud-ops/mongodb/status.svg)](https://drone.owncloud.com/owncloud-ops/mongodb/)
 [![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/owncloudops/mongodb)
 
-Docker image for [Mongodb](https://www.mongodb.com/de).
+Custom container image for [MongoDB](https://www.mongodb.com/).
 
 ## Versioning
 
