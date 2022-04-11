@@ -37,4 +37,4 @@ docker build --build-arg BUILD_VERSION=4.0.20 -f Dockerfile -t mongodb:latest .
 
 ## License
 
-This project is licensed under the Apache 2.0 License - see the [LICENSE](https://github.com/owncloud-ops/mongodb/blob/master/LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](https://github.com/owncloud-ops/mongodb/blob/main/LICENSE) file for details.
