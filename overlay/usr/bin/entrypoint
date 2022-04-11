@@ -30,7 +30,7 @@ get_machine_ip() {
 
     hostname="$(hostname)"
     dns=$(getent ahosts "$hostname" | awk '/STREAM/ {print $1 }')
-    read -r -a ip_addresses <<< "$dns"
+    read -r -a ip_addresses <<<"$dns"
 
     if [[ "${#ip_addresses[@]}" -gt 1 ]]; then
         log_info "Found more than one IP address associated to hostname ${hostname}, will use ${ip_addresses[0]}"
@@ -47,22 +47,22 @@ mongodb_initiated() {
     if [[ -n "$MONGO_REPLICA_SET_NAME" ]]; then
         log_info "Initialize replica set $MONGO_REPLICA_SET_NAME"
         node=$(get_machine_ip)
-        result=$(mongo --quiet --eval  "rs.initiate({'_id': '$MONGO_REPLICA_SET_NAME', 'members':[{'_id':0,'host':'$node:${MONGO_PORT_NUMBER:-27017}','priority':5}]})")
+        result=$(mongo --quiet --eval "rs.initiate({'_id': '$MONGO_REPLICA_SET_NAME', 'members':[{'_id':0,'host':'$node:${MONGO_PORT_NUMBER:-27017}','priority':5}]})")
 
         # Code 23 = node is already initialized
-        if grep -q "\"code\" : 23" <<< "$result"; then
+        if grep -q "\"code\" : 23" <<<"$result"; then
             log_info "Node already initialized"
             return
         fi
 
-        if ! grep -q "\"ok\" : 1" <<< "$result"; then
+        if ! grep -q "\"ok\" : 1" <<<"$result"; then
             log_error "MongoDB replica set failed to get configured"
             exit 1
         fi
     fi
 }
 
-mongodb_create_users(){
+mongodb_create_users() {
     if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]; then
         STARTCMD="${STARTCMD} --auth"
 
@@ -75,7 +75,7 @@ mongodb_create_users(){
         fi
     fi
 
-    if [[ -n "${MONGO_USERNAME}" && -n "${MONGO_PASSWORD}"  ]]; then
+    if [[ -n "${MONGO_USERNAME}" && -n "${MONGO_PASSWORD}" ]]; then
         MONGO_DATABASE=${MONGO_DATABASE:-$MONGO_USERNAME}
 
         if [[ "$(mongo --quiet --eval "print(db.system.users.find({user:'${MONGO_USERNAME}'}).count())" admin)" == "0" ]]; then

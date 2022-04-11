@@ -8,12 +8,17 @@ LABEL org.opencontainers.image.source="https://github.com/owncloud-ops/mongodb"
 LABEL org.opencontainers.image.documentation="https://github.com/owncloud-ops/mongodb"
 
 ARG BUILD_VERSION
+ARG CONTAINER_LIBRARY_VERSION
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 # renovate: datasource=github-releases depName=hairyhenderson/gomplate
 ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.10.0}"
 # renovate: datasource=docker depName=mongo
 ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.0.28}"
+# renovate: datasource=github-releases depName=owncloud-op/container-library
+ENV CONTAINER_LIBRARY_VERSION="${CONTAINER_LIBRARY_VERSION:-v0.1.0}"
+
 ENV MONGO_DATA_DIR="${MONGO_DATA_DIR:-/opt/mongo}"
 
 ADD overlay/ /
@@ -22,6 +27,7 @@ RUN addgroup --gid 101 --system mongodb && \
     adduser --system --disabled-password --no-create-home --uid 101 --home "${MONGO_DATA_DIR}" --shell /sbin/nologin --ingroup mongodb --gecos mongodb mongodb && \
     apt-get update && apt-get install -y wget curl gnupg2 procps apt-transport-https ca-certificates && \
     curl -SsL -o /usr/local/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64-slim" && \
+    curl -SsL "https://github.com/owncloud-ops/container-library/releases/download/${CONTAINER_LIBRARY_VERSION}/container-library.tar.gz" | tar xz -C / && \
     chmod 755 /usr/local/bin/gomplate && \
     MONGO_VERSION=${MONGO_RAW_VERSION%.*} && \
     echo "Setup MongoDB 'v$MONGO_VERSION'" && \
