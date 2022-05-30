@@ -6,8 +6,6 @@ storage:
   journal:
     enabled: true
   directoryPerDB: {{ getenv "MONGO_DIRECTORY_PER_DB" "false" | conv.Bool }}
-  mmapv1:
-    smallFiles: {{ getenv "MONGO_SMALL_FILES" "false" | conv.Bool }}
 
 systemLog:
   destination: file
