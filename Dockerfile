@@ -1,4 +1,4 @@
-FROM amd64/debian:9-slim@sha256:069af184a78a117ad442339d87b0ac6ecdc53cde8c23e44dc5006913401f9a39
+FROM amd64/debian:10-slim
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>"
 LABEL org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>"
@@ -15,7 +15,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # renovate: datasource=github-releases depName=hairyhenderson/gomplate
 ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.10.0}"
 # renovate: datasource=docker depName=mongo
-ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.0.28}"
+ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.2.19}"
 # renovate: datasource=github-releases depName=owncloud-ops/container-library
 ENV CONTAINER_LIBRARY_VERSION="${CONTAINER_LIBRARY_VERSION:-v0.1.0}"
 
@@ -32,7 +32,7 @@ RUN addgroup --gid 101 --system mongodb && \
     MONGO_VERSION=${MONGO_RAW_VERSION%.*} && \
     echo "Setup MongoDB 'v$MONGO_VERSION'" && \
     wget -qO - "https://www.mongodb.org/static/pgp/server-$MONGO_VERSION.asc" | apt-key add - && \
-    echo "deb https://repo.mongodb.org/apt/debian stretch/mongodb-org/$MONGO_VERSION main" | tee "/etc/apt/sources.list.d/mongodb-org.list" && \
+    echo "deb https://repo.mongodb.org/apt/debian buster/mongodb-org/$MONGO_VERSION main" | tee "/etc/apt/sources.list.d/mongodb-org.list" && \
     apt-get update && apt-get install -y mongodb-org mongodb-org-server mongodb-org-shell mongodb-org-mongos mongodb-org-tools && \
     mkdir -p "${MONGO_DATA_DIR}"/db && \
     mkdir -p "${MONGO_DATA_DIR}"/conf && \
