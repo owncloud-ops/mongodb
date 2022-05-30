@@ -32,7 +32,7 @@ RUN addgroup --gid 101 --system mongodb && \
     MONGO_VERSION=${MONGO_RAW_VERSION%.*} && \
     echo "Setup MongoDB 'v$MONGO_VERSION'" && \
     wget -qO - "https://www.mongodb.org/static/pgp/server-$MONGO_VERSION.asc" | apt-key add - && \
-    echo "deb https://repo.mongodb.org/apt/debian stretch/mongodb-org/$MONGO_VERSION main" | tee "/etc/apt/sources.list.d/mongodb-org.list" && \
+    echo "deb https://repo.mongodb.org/apt/debian buster/mongodb-org/$MONGO_VERSION main" | tee "/etc/apt/sources.list.d/mongodb-org.list" && \
     apt-get update && apt-get install -y mongodb-org mongodb-org-server mongodb-org-shell mongodb-org-mongos mongodb-org-tools && \
     mkdir -p "${MONGO_DATA_DIR}"/db && \
     mkdir -p "${MONGO_DATA_DIR}"/conf && \
