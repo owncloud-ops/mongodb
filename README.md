@@ -7,7 +7,7 @@ Custom container image for [MongoDB](https://www.mongodb.com/).
 
 ## Versioning
 
-The used version tags are representing the minor upstream versions. Patch releases are counted by us and dont refelct the full upstream release directly. Exmaple: `v4.0.20` means the image contains MongoDB `v4.0` but **not** necessarily MongoDB `v4.0.20`.
+The used version tags are representing the minor upstream versions. Patch releases are counted by us and dont refelct the full upstream release directly. Exmaple: `v4.4.20` means the image contains MongoDB `v4.4` but **not** necessarily MongoDB `v4.4.20`.
 
 ## Environment Variables
 
@@ -32,7 +32,7 @@ MONGO_DATABASE=$MONGO_USERNAME
 You could use the `BUILD_VERSION` to specify the target version.
 
 ```Shell
-docker build --build-arg BUILD_VERSION=4.0.20 -f Dockerfile -t mongodb:latest .
+docker build --build-arg BUILD_VERSION=4.4.20 -f Dockerfile -t mongodb:latest .
 ```
 
 ## License

@@ -5,11 +5,11 @@ storage:
   dbPath: {{ getenv "MONGO_DATA_DIR" }}/db
   journal:
     enabled: true
-  directoryPerDB: {{ getenv "MONGO_DIRECTORY_PER_DB" "false" | conv.Bool }}
+  directoryPerDB: {{ getenv "MONGO_DIRECTORY_PER_DB" "false" | conv.ToBool }}
 
 systemLog:
   destination: file
-  quiet: {{ getenv "MONGO_DISABLE_SYSTEM_LOG" "false" | conv.Bool }}
+  quiet: {{ getenv "MONGO_DISABLE_SYSTEM_LOG" "false" | conv.ToBool }}
   path: /dev/stdout
   verbosity: {{ getenv "MONGO_SYSTEM_LOG_VERBOSITY" "0" }}
 
