@@ -26,6 +26,22 @@ MONGO_USERNAME=
 MONGO_PASSWORD=
 MONGO_DATABASE=$MONGO_USERNAME
 MONGO_SECURITY_KEYFILE=
+
+MONGODB_BACKUP_HOST=mongodb
+MONGODB_BACKUP_PORT=27017
+```
+
+## Backups
+
+The container image can also be used for scheduling database backups. Please ensure that the backup container is assigned to the same network as the database container. The backups are stored in `${MONGO_DATA_DIR}/dump` and a volume or bind mount need to be configured to store the backups permanently.
+
+```Shell
+docker run --no-healthcheck \
+    --network my-network \
+    --entrypoint /usr/bin/entrypoint \
+    -e MONGO_ROOT_USERNAME=admin \
+    -e MONGO_ROOT_PASSWORD=password \
+    -it mongodb:latest backup
 ```
 
 ## Build

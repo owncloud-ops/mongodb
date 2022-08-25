@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+# shellcheck disable=SC1091
+source /usr/local/lib/log.sh
+
+# prepare a new backup location based on DOW (day of week)
+DOW=$(date +%u)
+WORKDIR=${MONGO_DATA_DIR}/dump/backup.${DOW}
+
+# set args for mongodump command
+ARGS=(
+    --host="${MONGODB_BACKUP_HOST:-mongodb}"
+    --port="${MONGODB_BACKUP_PORT:-27017}"
+)
+
+if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]; then
+    ARGS+=(
+        --username="${MONGO_ROOT_USERNAME}"
+        --password="${MONGO_ROOT_PASSWORD}"
+        --authenticationDatabase=admin
+    )
+fi
+
+if [ -d "${WORKDIR}" ]; then
+    rm -rf "${WORKDIR}"
+fi
+
+mkdir -p "${WORKDIR}"
+chmod 740 "${WORKDIR}"
+cd "${WORKDIR}"
+
+log_info "Starting backup"
+START=$(date +%s)
+mongodump "${ARGS[@]}" --gzip --out="${WORKDIR}"
+ENDS=$(date +%s)
+log_info "Done within $(("${ENDS}" - "${START}"))s"

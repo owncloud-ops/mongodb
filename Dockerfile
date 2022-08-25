@@ -47,7 +47,7 @@ EXPOSE 27017
 
 USER mongodb
 
-ENTRYPOINT ["/usr/bin/entrypoint"]
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD /usr/bin/healthcheck
+ENTRYPOINT ["/usr/bin/entrypoint", "server"]
+HEALTHCHECK --interval=15s --timeout=5s --retries=10 CMD /usr/bin/healthcheck
 WORKDIR "${MONGO_DATA_DIR}"
 CMD []
