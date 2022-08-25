@@ -10,8 +10,8 @@ WORKDIR=${MONGO_DATA_DIR}/dump/backup.${DOW}
 
 # set args for mongodump command
 ARGS=(
-    --host="${MONGODB_BACKUP_HOST:-mongodb}"
-    --port="${MONGODB_BACKUP_PORT:-27017}"
+    --host="${MONGO_BACKUP_HOST:-mongodb}"
+    --port="${MONGO_BACKUP_PORT:-27017}"
 )
 
 if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]; then
