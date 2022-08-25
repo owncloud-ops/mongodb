@@ -35,6 +35,7 @@ RUN addgroup --gid 101 --system mongodb && \
     echo "deb https://repo.mongodb.org/apt/debian buster/mongodb-org/$MONGO_VERSION main" | tee "/etc/apt/sources.list.d/mongodb-org.list" && \
     apt-get update && apt-get install -y mongodb-org mongodb-org-server mongodb-org-shell mongodb-org-mongos mongodb-org-tools && \
     mkdir -p "${MONGO_DATA_DIR}"/db && \
+    mkdir -p "${MONGO_DATA_DIR}"/dump && \
     mkdir -p "${MONGO_DATA_DIR}"/conf && \
     mkdir -p "${MONGO_DATA_DIR}"/tmp && \
     chown -R mongodb:mongodb "${MONGO_DATA_DIR}" && \
