@@ -6,7 +6,10 @@ storage:
   journal:
     enabled: true
   directoryPerDB: {{ getenv "MONGO_DIRECTORY_PER_DB" "false" | conv.ToBool }}
-
+{{ if (getenv "MONGO_SECURITY_KEYFILE") }}
+security:
+  keyFile: {{ getenv "MONGO_SECURITY_KEYFILE" }}
+{{ end }}
 systemLog:
   destination: file
   quiet: {{ getenv "MONGO_DISABLE_SYSTEM_LOG" "false" | conv.ToBool }}
