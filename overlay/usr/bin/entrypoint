@@ -6,18 +6,35 @@ set -eo pipefail
 source /usr/local/lib/log.sh
 
 CONF_FILE="${MONGO_DATA_DIR}/conf/mongodb.conf"
-ARGS=(
-    --config="${CONF_FILE}"
-)
-
 /usr/local/bin/gomplate -o "${CONF_FILE}" -f /etc/templates/mongodb.conf.tpl
 
-mongodb_bg() {
+start_bg() {
     # start temp. background service
     mongod --fork --config="${CONF_FILE}" >/dev/null
 }
 
-mongodb_stop() {
+start_server() {
+    ARGS=(
+        --config="${CONF_FILE}"
+    )
+
+    start_bg
+    initiated
+    create_users
+    stop_bg
+
+    log_info "Start Mongodb\n\n"
+
+    if [[ -n "${MONGO_SECURITY_KEYFILE}" ]]; then
+        ARGS+=(
+            --keyFile "${MONGO_SECURITY_KEYFILE}"
+        )
+    fi
+
+    exec mongod "${ARGS[@]}"
+}
+
+stop_bg() {
     # stop temp. background service
     PID=$(cat "${MONGO_DATA_DIR}/tmp/mongodb.pid")
     kill "$PID"
@@ -44,7 +61,7 @@ get_machine_ip() {
     echo "${ip_addresses[0]}"
 }
 
-mongodb_initiated() {
+initiated() {
 
     if [[ -n "$MONGO_REPLICA_SET_NAME" ]]; then
         log_info "Initialize replica set $MONGO_REPLICA_SET_NAME"
@@ -64,7 +81,7 @@ mongodb_initiated() {
     fi
 }
 
-mongodb_create_users() {
+create_users() {
     if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]; then
         ARGS+=(
             --auth
@@ -92,17 +109,23 @@ mongodb_create_users() {
     fi
 }
 
-mongodb_bg
-mongodb_initiated
-mongodb_create_users
-mongodb_stop
+run_backup() {
+    log_info "Run MongoDB backup"
+    exec /usr/bin/backup
+}
 
-log_info "Start Mongodb\n\n"
-
-if [[ -n "${MONGO_SECURITY_KEYFILE}" ]]; then
-    ARGS+=(
-        --keyFile "${MONGO_SECURITY_KEYFILE}"
-    )
-fi
-
-exec mongod "${ARGS[@]}"
+while [ $# -gt 0 ]; do
+    case "$1" in
+    server)
+        start_server
+        ;;
+    backup)
+        run_backup
+        exit 0
+        ;;
+    *)
+        log_info "Unknown entrypoint option $1" >&2
+        exit 1
+        ;;
+    esac
+done
