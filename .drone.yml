@@ -18,6 +18,7 @@ steps:
 - name: dryrun
   image: plugins/docker
   settings:
+    context: 4/
     dockerfile: Dockerfile
     dry_run: true
     repo: owncloudops/${DRONE_REPO_NAME}
@@ -35,6 +36,7 @@ steps:
 - name: publish
   image: plugins/docker
   settings:
+    context: 4/
     dockerfile: Dockerfile
     password:
       from_secret: docker_password
@@ -82,6 +84,7 @@ steps:
 - name: dryrun
   image: plugins/docker
   settings:
+    context: 5/
     dockerfile: 5/Dockerfile
     dry_run: true
     repo: owncloudops/${DRONE_REPO_NAME}
@@ -99,6 +102,7 @@ steps:
 - name: publish
   image: plugins/docker
   settings:
+    context: 5/
     dockerfile: 5/Dockerfile
     password:
       from_secret: docker_password
