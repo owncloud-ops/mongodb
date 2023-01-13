@@ -12,7 +12,7 @@ The used version tags are representing the minor upstream versions. Patch releas
 ## Docker Tags and respective Dockerfile links
 
 - [`4`](https://github.com/owncloud-ops/mongodb/blob/main/4/Dockerfile) available as `owncloud-ops/mongodb:4`
-- [`5`](https://github.com/owncloud-ops/mongodb/blob/main/4/Dockerfile) available as `owncloud-ops/mongodb:5`
+- [`5`](https://github.com/owncloud-ops/mongodb/blob/main/5/Dockerfile) available as `owncloud-ops/mongodb:latest`, `owncloud-ops/mongodb:5`
 
 ## Environment Variables
 
