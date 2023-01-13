@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+ARGS=(
+  --quiet
+)
+
+if [[ -n "${MONGO_ROOT_USERNAME}" && -n "${MONGO_ROOT_PASSWORD}" ]]; then
+  ARGS+=(
+    --username "${MONGODB_ROOT_USERNAME}"
+    --password "${MONGODB_ROOT_PASSWORD}"
+    --authenticationDatabase admin
+  )
+fi
+
+mongo "${ARGS[@]}" --eval 'print(db.runCommand({ ping: 1 }).ok ? 0 : 1)' 2>/dev/null || exit 1
+
+exit 0

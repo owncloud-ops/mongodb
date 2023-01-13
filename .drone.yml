@@ -1,6 +1,53 @@
 ---
 kind: pipeline
-name: container
+name: container-v4
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: tags
+  image: thegeeklab/docker-autotag
+  environment:
+    DOCKER_AUTOTAG_FORCE_LATEST: False
+    DOCKER_AUTOTAG_IGNORE_PRERELEASE: True
+    DOCKER_AUTOTAG_OUTPUT_FILE: .tags
+    DOCKER_AUTOTAG_VERSION: ${DRONE_TAG}
+
+- name: dryrun
+  image: plugins/docker
+  settings:
+    context: 4/
+    dockerfile: 4/Dockerfile
+    dry_run: true
+    repo: owncloudops/${DRONE_REPO_NAME}
+  when:
+    ref:
+    - refs/pull/**
+
+- name: publish
+  image: plugins/docker
+  settings:
+    context: 4/
+    dockerfile: 4/Dockerfile
+    password:
+      from_secret: docker_password
+    repo: owncloudops/${DRONE_REPO_NAME}
+    username:
+      from_secret: docker_username
+  when:
+    ref:
+    - refs/tags/**
+
+trigger:
+  ref:
+  - refs/tags/v4*
+  - refs/pull/**
+
+---
+kind: pipeline
+name: container-v5
 
 platform:
   os: linux
@@ -18,24 +65,19 @@ steps:
 - name: dryrun
   image: plugins/docker
   settings:
-    dockerfile: Dockerfile
+    context: 5/
+    dockerfile: 5/Dockerfile
     dry_run: true
     repo: owncloudops/${DRONE_REPO_NAME}
   when:
     ref:
     - refs/pull/**
 
-- name: changelog
-  image: thegeeklab/git-chglog
-  commands:
-  - git fetch -tq
-  - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
-  - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
-
 - name: publish
   image: plugins/docker
   settings:
-    dockerfile: Dockerfile
+    context: 5/
+    dockerfile: 5/Dockerfile
     password:
       from_secret: docker_password
     repo: owncloudops/${DRONE_REPO_NAME}
@@ -46,6 +88,28 @@ steps:
     - refs/heads/main
     - refs/tags/**
 
+trigger:
+  ref:
+  - refs/heads/main
+  - refs/tags/v5*
+  - refs/pull/**
+
+---
+kind: pipeline
+name: release
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: changelog
+  image: thegeeklab/git-chglog
+  commands:
+  - git fetch -tq
+  - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
+  - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
+
 - name: release
   image: plugins/github-release
   settings:
@@ -54,15 +118,14 @@ steps:
     note: CHANGELOG.md
     overwrite: true
     title: ${DRONE_TAG}
-  when:
-    ref:
-    - refs/tags/**
 
 trigger:
   ref:
-  - refs/heads/main
   - refs/tags/**
-  - refs/pull/**
+
+depends_on:
+- container-v4
+- container-v5
 
 ---
 kind: pipeline
@@ -103,6 +166,6 @@ trigger:
   - failure
 
 depends_on:
-- container
+- release
 
 ...
