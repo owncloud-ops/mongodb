@@ -9,6 +9,11 @@ Custom container image for [MongoDB](https://www.mongodb.com/).
 
 The used version tags are representing the minor upstream versions. Patch releases are counted by us and dont refelct the full upstream release directly. Exmaple: `v4.4.20` means the image contains MongoDB `v4.4` but **not** necessarily MongoDB `v4.4.20`.
 
+## Docker Tags and respective Dockerfile links
+
+- [`4`](https://github.com/owncloud-ops/mongodb/blob/main/4/Dockerfile) available as `owncloud-ops/mongodb:4`
+- [`5`](https://github.com/owncloud-ops/mongodb/blob/main/4/Dockerfile) available as `owncloud-ops/mongodb:5`
+
 ## Environment Variables
 
 ```Shell
