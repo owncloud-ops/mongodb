@@ -26,13 +26,6 @@ steps:
     ref:
     - refs/pull/**
 
-- name: changelog
-  image: thegeeklab/git-chglog
-  commands:
-  - git fetch -tq
-  - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
-  - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
-
 - name: publish
   image: plugins/docker
   settings:
@@ -43,18 +36,6 @@ steps:
     repo: owncloudops/${DRONE_REPO_NAME}
     username:
       from_secret: docker_username
-  when:
-    ref:
-    - refs/tags/**
-
-- name: release
-  image: plugins/github-release
-  settings:
-    api_key:
-      from_secret: github_token
-    note: CHANGELOG.md
-    overwrite: true
-    title: ${DRONE_TAG}
   when:
     ref:
     - refs/tags/**
@@ -92,13 +73,6 @@ steps:
     ref:
     - refs/pull/**
 
-- name: changelog
-  image: thegeeklab/git-chglog
-  commands:
-  - git fetch -tq
-  - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
-  - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
-
 - name: publish
   image: plugins/docker
   settings:
@@ -114,6 +88,28 @@ steps:
     - refs/heads/main
     - refs/tags/**
 
+trigger:
+  ref:
+  - refs/heads/main
+  - refs/tags/v5*
+  - refs/pull/**
+
+---
+kind: pipeline
+name: release
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: changelog
+  image: thegeeklab/git-chglog
+  commands:
+  - git fetch -tq
+  - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
+  - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
+
 - name: release
   image: plugins/github-release
   settings:
@@ -122,15 +118,14 @@ steps:
     note: CHANGELOG.md
     overwrite: true
     title: ${DRONE_TAG}
-  when:
-    ref:
-    - refs/tags/**
 
 trigger:
   ref:
-  - refs/heads/main
-  - refs/tags/v5*
-  - refs/pull/**
+  - refs/tags/**
+
+depends_on:
+- container-v4
+- container-v5
 
 ---
 kind: pipeline
@@ -171,7 +166,6 @@ trigger:
   - failure
 
 depends_on:
-- container-v4
-- container-v5
+- release
 
 ...
