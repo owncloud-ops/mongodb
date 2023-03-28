@@ -8,7 +8,7 @@ platform:
 
 steps:
 - name: tags
-  image: thegeeklab/docker-autotag
+  image: quay.io/thegeeklab/docker-autotag
   environment:
     DOCKER_AUTOTAG_FORCE_LATEST: False
     DOCKER_AUTOTAG_IGNORE_PRERELEASE: True
@@ -16,7 +16,7 @@ steps:
     DOCKER_AUTOTAG_VERSION: ${DRONE_TAG}
 
 - name: dryrun
-  image: plugins/docker
+  image: docker.io/plugins/docker
   settings:
     context: 4/
     dockerfile: 4/Dockerfile
@@ -26,8 +26,8 @@ steps:
     ref:
     - refs/pull/**
 
-- name: publish
-  image: plugins/docker
+- name: publish-dockerhub
+  image: docker.io/plugins/docker
   settings:
     context: 4/
     dockerfile: 4/Dockerfile
@@ -55,7 +55,7 @@ platform:
 
 steps:
 - name: tags
-  image: thegeeklab/docker-autotag
+  image: quay.io/thegeeklab/docker-autotag
   environment:
     DOCKER_AUTOTAG_FORCE_LATEST: True
     DOCKER_AUTOTAG_IGNORE_PRERELEASE: True
@@ -63,7 +63,7 @@ steps:
     DOCKER_AUTOTAG_VERSION: ${DRONE_TAG}
 
 - name: dryrun
-  image: plugins/docker
+  image: docker.io/plugins/docker
   settings:
     context: 5/
     dockerfile: 5/Dockerfile
@@ -73,8 +73,8 @@ steps:
     ref:
     - refs/pull/**
 
-- name: publish
-  image: plugins/docker
+- name: publish-dockerhub
+  image: docker.io/plugins/docker
   settings:
     context: 5/
     dockerfile: 5/Dockerfile
@@ -104,14 +104,14 @@ platform:
 
 steps:
 - name: changelog
-  image: thegeeklab/git-chglog
+  image: quay.io/thegeeklab/git-chglog
   commands:
   - git fetch -tq
   - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
   - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
 
 - name: release
-  image: plugins/github-release
+  image: docker.io/plugins/github-release
   settings:
     api_key:
       from_secret: github_token
@@ -136,8 +136,8 @@ platform:
   arch: amd64
 
 steps:
-- name: pushrm
-  image: chko/docker-pushrm:1
+- name: pushrm-dockerhub
+  image: docker.io/chko/docker-pushrm:1
   environment:
     DOCKER_PASS:
       from_secret: docker_password
@@ -145,9 +145,23 @@ steps:
       from_secret: docker_username
     PUSHRM_FILE: README.md
     PUSHRM_TARGET: owncloudops/${DRONE_REPO_NAME}
+  when:
+      status:
+        - success
+
+  - name: pushrm-quay
+    image: docker.iochko/docker-pushrm:1
+    environment:
+      APIKEY__QUAY_IO:
+        from_secret: quay_token
+      PUSHRM_FILE: README.md
+      PUSHRM_TARGET: quay.io/owncloudops/${DRONE_REPO_NAME}
+    when:
+      status:
+        - success
 
 - name: notify
-  image: plugins/slack
+  image: docker.io/plugins/slack
   settings:
     channel:
       from_secret: slack_channel
