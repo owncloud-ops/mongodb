@@ -2,6 +2,7 @@
 
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud-ops/mongodb/status.svg)](https://drone.owncloud.com/owncloud-ops/mongodb/)
 [![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/owncloudops/mongodb)
+[![Quay.io](https://img.shields.io/badge/quay-latest-blue.svg?logo=docker&logoColor=white)](https://quay.io/repository/owncloudops/mongodb)
 
 Custom container image for [MongoDB](https://www.mongodb.com/).
 
