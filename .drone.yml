@@ -41,6 +41,25 @@ steps:
   when:
     ref:
     - refs/tags/**
+  depends_on:
+    - dryrun
+
+- name: publish-quay
+  image: docker.io/plugins/docker
+  settings:
+    context: 4/
+    dockerfile: 4/Dockerfile
+    password:
+      from_secret: quay_password
+    registry: quay.io
+    repo: quay.io/owncloudops/${DRONE_REPO_NAME}
+    username:
+      from_secret: quay_username
+  when:
+    ref:
+    - refs/tags/**
+  depends_on:
+    - dryrun
 
 trigger:
   ref:
@@ -91,6 +110,26 @@ steps:
     ref:
     - refs/heads/main
     - refs/tags/**
+  depends_on:
+    - dryrun
+
+- name: publish-quay
+  image: docker.io/plugins/docker
+  settings:
+    context: 5/
+    dockerfile: 5/Dockerfile
+    password:
+      from_secret: quay_password
+    registry: quay.io
+    repo: quay.io/owncloudops/${DRONE_REPO_NAME}
+    username:
+      from_secret: quay_username
+  when:
+    ref:
+    - refs/heads/main
+    - refs/tags/**
+  depends_on:
+    - dryrun
 
 trigger:
   ref:
@@ -113,8 +152,6 @@ steps:
   - git fetch -tq
   - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
   - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
-  depends_on:
-    - dryrun
 
 - name: release
   image: docker.io/plugins/github-release
