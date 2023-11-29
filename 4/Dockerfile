@@ -15,7 +15,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # renovate: datasource=github-releases depName=hairyhenderson/gomplate
 ENV GOMPLATE_VERSION="${GOMPLATE_VERSION:-v3.11.6}"
 # renovate: datasource=docker depName=mongo
-ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.4.25}"
+ENV MONGO_RAW_VERSION="${BUILD_VERSION:-4.4.26}"
 # renovate: datasource=github-releases depName=owncloud-ops/container-library
 ENV CONTAINER_LIBRARY_VERSION="${CONTAINER_LIBRARY_VERSION:-v0.1.0}"
 
