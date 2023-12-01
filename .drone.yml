@@ -36,6 +36,7 @@ steps:
     settings:
       context: 4/
       dockerfile: 4/Dockerfile
+      auto_tag: True
       password:
         from_secret: docker_password
       repo: owncloudops/${DRONE_REPO_NAME}
@@ -52,6 +53,7 @@ steps:
     settings:
       context: 4/
       dockerfile: 4/Dockerfile
+      auto_tag: True
       password:
         from_secret: quay_password
       registry: quay.io
@@ -107,6 +109,7 @@ steps:
     settings:
       context: 5/
       dockerfile: 5/Dockerfile
+      auto_tag: True
       password:
         from_secret: docker_password
       repo: owncloudops/${DRONE_REPO_NAME}
@@ -124,6 +127,7 @@ steps:
     settings:
       context: 5/
       dockerfile: 5/Dockerfile
+      auto_tag: True
       password:
         from_secret: quay_password
       registry: quay.io
