@@ -25,7 +25,7 @@ ADD overlay/ /
 
 RUN addgroup --gid 101 --system mongodb && \
     adduser --system --disabled-password --no-create-home --uid 101 --home "${MONGO_DATA_DIR}" --shell /sbin/nologin --ingroup mongodb --gecos mongodb mongodb && \
-    apt-get update && apt-get install -y wget curl gnupg2 procps apt-transport-https ca-certificates && \
+    apt-get update && apt-get install -y wget curl gnupg2 procps apt-transport-https ca-certificates perl-base && \
     curl -SsfL -o /usr/local/bin/gomplate "https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64-slim" && \
     curl -SsfL "https://github.com/owncloud-ops/container-library/releases/download/${CONTAINER_LIBRARY_VERSION}/container-library.tar.gz" | tar xz -C / && \
     chmod 755 /usr/local/bin/gomplate && \
