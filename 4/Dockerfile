@@ -1,4 +1,4 @@
-FROM docker.io/amd64/debian:11-slim@sha256:eba49f684e76d007f9cc1a6376aea65eee5d2e41d6d0481de1c9704d7bd382d8
+FROM docker.io/amd64/debian:12-slim@sha256:cd734d50b52248e3c0f23bee93d2d3837ae600a581d1b0a8ecaedb60c6f15d5a
 
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>"
 LABEL org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>"
